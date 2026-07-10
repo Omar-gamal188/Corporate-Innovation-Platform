@@ -6,7 +6,7 @@ const evaluationService = require('../services/evaluationService');
 const decisionService = require('../services/decisionService');
 const executionService = require('../services/executionService');
 const AppError = require('../utils/AppError');
-const env = require('../config/env');
+const { uploadPath } = require('../middleware/upload');
 
 /** GET /api/ideas */
 const listIdeas = catchAsync(async (req, res) => {
@@ -71,7 +71,7 @@ const downloadAttachment = catchAsync(async (req, res) => {
     throw new AppError('Attachment not found', 404);
   }
 
-  const filePath = path.join(__dirname, '..', '..', env.uploadDir, attachment.storedName);
+  const filePath = path.join(uploadPath, attachment.storedName);
   res.download(filePath, attachment.originalName);
 });
 

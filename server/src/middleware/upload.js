@@ -1,11 +1,19 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
 const env = require('../config/env');
 const { ALLOWED_ATTACHMENT_MIME_TYPES } = require('../utils/constants');
 
-const uploadPath = path.join(__dirname, '..', '..', env.uploadDir);
+// On Vercel the deployed bundle is read-only (only os.tmpdir() is writable),
+// and that storage is ephemeral — it can vanish between invocations. That's
+// an acceptable trade-off for a demo deployment, but it means uploaded files
+// are not guaranteed to persist there the way they do in local/traditional
+// hosting. Locally (and on any regular server), we keep using a real folder
+// on disk so uploads persist normally.
+const uploadPath = process.env.VERCEL === '1' ? path.join(os.tmpdir(), env.uploadDir) : path.join(__dirname, '..', '..', env.uploadDir);
+
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
@@ -35,3 +43,4 @@ const upload = multer({
 });
 
 module.exports = upload;
+module.exports.uploadPath = uploadPath;

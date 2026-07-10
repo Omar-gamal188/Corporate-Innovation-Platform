@@ -14,6 +14,13 @@ const AppError = require('./utils/AppError');
 
 const app = express();
 
+// Vercel (and most hosts) sit in front of this app as a reverse proxy and set
+// X-Forwarded-For. Without this, express-rate-limit can't safely trust that
+// header to identify the real client IP — it throws instead of silently
+// getting rate limiting/lockout wrong. Trusting only the first hop is safe
+// both behind Vercel's proxy and locally (no proxy, header simply absent).
+app.set('trust proxy', 1);
+
 // Secure HTTP headers.
 app.use(helmet());
 
